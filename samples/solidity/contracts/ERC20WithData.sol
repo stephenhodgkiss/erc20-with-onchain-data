@@ -38,7 +38,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     function mintWithData(
         address to,
         uint256 amount,
-        bytes calldata data
+        string memory data
     ) external override onlyOwner {
         _mint(to, amount);
     }
@@ -47,7 +47,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         address from,
         address to,
         uint256 amount,
-        bytes calldata data
+        string memory data
     ) external override {
         if (from == _msgSender()) {
             transfer(to, amount);
@@ -59,7 +59,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     function burnWithData(
         address from,
         uint256 amount,
-        bytes calldata data
+        string memory data
     ) external override {
         require(from == _msgSender(), 'ERC20WithData: caller is not owner');
         _burn(from, amount);
@@ -68,7 +68,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     function approveWithData(
         address spender,
         uint256 amount,
-        bytes calldata data
+        string memory data
     ) external override returns (bool) {
         return approve(spender, amount);
     }
