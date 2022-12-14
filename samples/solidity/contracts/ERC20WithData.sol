@@ -72,4 +72,8 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     ) external override returns (bool) {
         return approve(spender, amount);
     }
+
+    function decimals() public view virtual override returns (uint8) {
+        return 6;
+    }
 }
