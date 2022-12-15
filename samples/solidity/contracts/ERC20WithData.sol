@@ -47,10 +47,8 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     // 500000000000000000 with the current default of 6 decimal places allows
     // for a maximum amount of 500 Billion.
     ) external override onlyOwner {
-        if (amount > 500000000000000000) {
-            require(currentAllowance >= amount, "ERC20: Mint amounts exceeds maximum of 500000000000000000");
-            _mint(to, amount);
-        }
+        require(amount <= 500000000000000000, "ERC20: Mint amounts exceeds maximum of 500000000000000000");
+        _mint(to, amount);
     }
 
     function transferWithData(
