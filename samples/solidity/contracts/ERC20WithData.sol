@@ -39,8 +39,18 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         address to,
         uint256 amount,
         string memory data
+    // ) external override onlyOwner {
+    //     _mint(to, amount);
+    // }
+    
+    // Add validation check to ensure amount is not something ridiculously high
+    // 500000000000000000 with the current default of 6 decimal places allows
+    // for a maximum amount of 500 Billion.
     ) external override onlyOwner {
-        _mint(to, amount);
+        if (amount > 500000000000000000) {
+            require(currentAllowance >= amount, "ERC20: Mint amounts exceeds maximum of 500000000000000000");
+            _mint(to, amount);
+        }
     }
 
     function transferWithData(
