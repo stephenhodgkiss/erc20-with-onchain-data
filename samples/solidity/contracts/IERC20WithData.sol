@@ -25,15 +25,4 @@ interface IERC20WithData is IERC165 {
         string memory data
     ) external;
 
-    function burnWithData(
-        address from,
-        uint256 amount,
-        string memory data
-    ) external;
-
-    function approveWithData(
-        address spender,
-        uint256 amount,
-        string memory data
-    ) external returns (bool);
 }
