@@ -88,13 +88,5 @@
   "main": ".eslintrc.js",
   "directories": {
     "test": "test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://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@github.com/stephenhodgkiss/firefly-tokens-erc20-erc721.git"
-  },
-  "bugs": {
-    "url": "https://github.com/stephenhodgkiss/firefly-tokens-erc20-erc721/issues"
-  },
-  "homepage": "https://github.com/stephenhodgkiss/firefly-tokens-erc20-erc721#readme"
+  }
 }
