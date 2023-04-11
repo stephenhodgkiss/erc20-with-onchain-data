@@ -90,20 +90,13 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     function burn(uint256 amount) internal {
         // do nothing
     }
-
-    function increaseAllowance(
-        address spender,
-        uint256 addedValue
-    ) public virtual override returns (bool) {
+    function increaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
+        // Do nothing
+        return true;
+    }
+    function decreaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
         // Do nothing
         return true;
     }
 
-    function decreaseAllowance(
-        address spender,
-        uint256 addedValue
-    ) public virtual override returns (bool) {
-        // Do nothing
-        return true;
-    }
 }
