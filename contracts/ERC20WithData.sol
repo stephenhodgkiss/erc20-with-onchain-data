@@ -19,7 +19,7 @@ import './IERC20WithData.sol';
  *   - any party can burn their own tokens
  *   - decimals hard-coded to 18 (so 1 token is expressed as 1000000000000000000)
  *
- * The inclusion of a "data" argument on each external method allows FireFly to write
+ * The inclusion of a "data" argument on each external method allows it to write
  * extra data to the chain alongside each token transaction, in order to correlate it with
  * other on- and off-chain events.
  *

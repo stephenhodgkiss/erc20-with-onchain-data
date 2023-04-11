@@ -8,7 +8,7 @@ import '@openzeppelin/contracts/utils/introspection/IERC165.sol';
 /**
  * ERC20 interface with mint, burn, and attached data support.
  *
- * The inclusion of a "data" argument on each external method allows FireFly to write
+ * The inclusion of a "data" argument on each external method allows it to write
  * extra data to the chain alongside each token transaction, in order to correlate it with
  * other on- and off-chain events.
  */
