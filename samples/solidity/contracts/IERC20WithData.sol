@@ -12,11 +12,7 @@ import '@openzeppelin/contracts/utils/introspection/IERC165.sol';
  * other on- and off-chain events.
  */
 interface IERC20WithData is IERC165 {
-    function mintWithData(
-        address to,
-        uint256 amount,
-        string memory data
-    ) external;
+    function mintWithData(address to, uint256 amount, string memory data) external;
 
     function transferWithData(
         address from,
@@ -24,16 +20,4 @@ interface IERC20WithData is IERC165 {
         uint256 amount,
         string memory data
     ) external;
-
-    function burnWithData(
-        address from,
-        uint256 amount,
-        string memory data
-    ) external;
-
-    function approveWithData(
-        address spender,
-        uint256 amount,
-        string memory data
-    ) external returns (bool);
 }

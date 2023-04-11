@@ -3,12 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "compile": "hardhat compile",
-    "deploy": "hardhat run scripts/deploy.ts",
-    "test": "hardhat test --network hardhat"
-  },
-  "author": "",
+    "author": "",
   "license": "ISC",
   "dependencies": {
     "@openzeppelin/contracts": "^4.5.0"
