@@ -3,7 +3,7 @@ pragma abicoder v2;
 
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/utils/introspection/IERC165.sol';
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 /**
  * ERC20 interface with mint, burn, and attached data support.
@@ -13,11 +13,21 @@ import '@openzeppelin/contracts/utils/introspection/IERC165.sol';
  * other on- and off-chain events.
  */
 interface IERC20WithData is IERC165 {
-    function mintWithData(address to, uint256 amount, string memory data) external;
+    function mintWithData(
+        address to,
+        uint256 amount,
+        string memory data
+    ) external;
 
     function transferWithData(
         address from,
         address to,
+        uint256 amount,
+        string memory data
+    ) external;
+
+    function burnWithData(
+        address from,
         uint256 amount,
         string memory data
     ) external;

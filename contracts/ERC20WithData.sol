@@ -3,11 +3,11 @@ pragma abicoder v2;
 
 pragma solidity ^0.8.0;
 
-import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
-import '@openzeppelin/contracts/utils/introspection/ERC165.sol';
-import '@openzeppelin/contracts/utils/Context.sol';
-import '@openzeppelin/contracts/access/Ownable.sol';
-import './IERC20WithData.sol';
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
+import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./IERC20WithData.sol";
 
 /**
  * Example ERC20 token with mint, burn, and attached data support.
@@ -32,31 +32,23 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         bytes4 interfaceId
     ) public view virtual override(ERC165, IERC165) returns (bool) {
         return
-            interfaceId == type(IERC20WithData).interfaceId || super.supportsInterface(interfaceId);
-    }
-
-    // Override the transfer function to prevent transfers to the 0 address
-    function transfer(address recipient, uint256 amount) public override returns (bool) {
-        require(recipient != address(0), 'ERC20: transfer to the zero address');
-        _transfer(_msgSender(), recipient, amount);
-        return true;
+            interfaceId == type(IERC20WithData).interfaceId ||
+            super.supportsInterface(interfaceId);
     }
 
     function mintWithData(
         address to,
         uint256 amount,
         string memory data
-    )
-        external
-        override
-        // Add validation check to ensure amount is not something ridiculously high
-        // 500000000000000000 with the current default of 6 decimal places allows
-        // for a maximum amount of 500 Billion.
-        onlyOwner
-    {
+    ) external override onlyOwner {
+        /*
+        Add validation check to ensure amount is not something ridiculously high
+        500000000000000000 with the current default of 6 decimal places allows
+        for a maximum amount of 500 Billion. 
+        */
         require(
             amount <= 500000000000000000,
-            'ERC20: Mint amounts exceeds maximum of 500000000000000000'
+            "ERC20: Mint amounts exceeds maximum of 500000000000000000"
         );
         _mint(to, amount);
     }
@@ -76,11 +68,23 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         }
     }
 
+    function burnWithData(
+        address from,
+        uint256 amount,
+        string memory data
+    ) external override {
+        require(from == _msgSender(), "ERC20WithData: caller is not owner");
+        _burn(from, amount);
+    }
+
     function decimals() public view virtual override returns (uint8) {
         return 6;
     }
 
-    function approve(address spender, uint256 amount) public override returns (bool) {
+    function approve(
+        address spender,
+        uint256 amount
+    ) public override returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, type(uint256).max);
         emit Approval(owner, spender, type(uint256).max);
@@ -88,16 +92,19 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     }
 
     // Remove the functions and override it to do nothing
-    function burn(uint256 amount) internal {
-        // do nothing
-    }
-    function increaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
-        // Do nothing
-        return true;
-    }
-    function decreaseAllowance(address spender, uint256 addedValue) public virtual override returns (bool) {
+    function increaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) public virtual override returns (bool) {
         // Do nothing
         return true;
     }
 
+    function decreaseAllowance(
+        address spender,
+        uint256 addedValue
+    ) public virtual override returns (bool) {
+        // Do nothing
+        return true;
+    }
 }
