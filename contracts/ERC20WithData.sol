@@ -39,7 +39,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     function mintWithData(
         address to,
         uint256 amount,
-        string memory data
+        string calldata data
     ) external override onlyOwner {
         /*
         Add validation check to ensure amount is not something ridiculously high
@@ -57,7 +57,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         address from,
         address to,
         uint256 amount,
-        string memory data
+        string calldata data
     ) external override {
         if (from == _msgSender()) {
             transfer(to, amount);
@@ -71,7 +71,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     function burnWithData(
         address from,
         uint256 amount,
-        string memory data
+        string calldata data
     ) external override {
         require(from == _msgSender(), "ERC20WithData: caller is not owner");
         _burn(from, amount);

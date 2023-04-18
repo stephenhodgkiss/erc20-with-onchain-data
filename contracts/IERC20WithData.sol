@@ -16,19 +16,19 @@ interface IERC20WithData is IERC165 {
     function mintWithData(
         address to,
         uint256 amount,
-        string memory data
+        string calldata data
     ) external;
 
     function transferWithData(
         address from,
         address to,
         uint256 amount,
-        string memory data
+        string calldata data
     ) external;
 
     function burnWithData(
         address from,
         uint256 amount,
-        string memory data
+        string calldata data
     ) external;
 }
