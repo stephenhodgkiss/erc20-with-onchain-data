@@ -14,7 +14,6 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
  */
 interface IERC20WithData is IERC165 {
     function mintWithData(
-        address to,
         uint256 amount,
         string calldata data
     ) external;

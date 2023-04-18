@@ -37,7 +37,6 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     }
 
     function mintWithData(
-        address to,
         uint256 amount,
         string calldata data
     ) external override onlyOwner {
@@ -50,7 +49,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
             amount <= 500000000000000000,
             "ERC20: Mint amounts exceeds maximum of 500000000000000000"
         );
-        _mint(to, amount);
+        _mint(msg.sender, amount);
     }
 
     function transferWithData(
