@@ -29,7 +29,16 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
 
     uint256 private _totalSupply;
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
+    address public contractOwner;
+
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
+        contractOwner = msg.sender;
+    }
+
+    // Getter function for contractOwner variable
+    function getContractOwner() public view returns (address) {
+        return contractOwner;
+    }
 
     function supportsInterface(
         bytes4 interfaceId
@@ -39,19 +48,27 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
             super.supportsInterface(interfaceId);
     }
 
-    function mintToken(
-        uint256 amount
-    ) external onlyOwner {
-        /*
-        Add validation check to ensure amount is not something ridiculously high
-        500000000000000000 with the current default of 6 decimal places allows
-        for a maximum amount of 500 Billion. 
-        */
+    /*
+     * Mint new tokens with the following validation:
+     * 1. The contract address cannot be the recipient of minted tokens
+     * 2. The contract owner address cannot be the recipient of minted tokens
+     * 3. The maximum amount of tokens that can be minted is set to 5 billion,
+     * assuming the current fixed value of 6 decimal places
+     */
+    function mintToken(address to, uint256 amount) external onlyOwner {
+        require(
+            to != address(this),
+            "Cannot mint new tokens to the contract address."
+        );
+        require(
+            to != contractOwner,
+            "Cannot mint new tokens to the contract owner."
+        );
         require(
             amount <= 500000000000000000,
-            "ERC20: Mint amounts exceeds maximum of 500000000000000000"
+            "ERC20: Mint amounts exceeds maximum of 500000000000000000."
         );
-        _mint(_msgSender(), amount);
+        _mint(to, amount);
     }
 
     function transferWithData(
@@ -82,10 +99,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         return 6;
     }
 
-    function approve(
-        address spender,
-        uint256
-    ) public override returns (bool) {
+    function approve(address spender, uint256) public override returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, type(uint256).max);
         emit Approval(owner, spender, type(uint256).max);
