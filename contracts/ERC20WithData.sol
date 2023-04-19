@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./ERC20.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -25,7 +25,6 @@ import "./IERC20WithData.sol";
  * This is a sample only and NOT a reference implementation.
  */
 contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
-
     uint256 private _totalSupply;
     string private _data;
 
@@ -42,9 +41,8 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     /*
      * Mint new tokens with the following validation:
      * 1. The contract address cannot be the recipient of minted tokens
-     * 2. The contract owner address cannot be the recipient of minted tokens
-     * 3. The maximum amount of tokens that can be minted is set to 5 billion,
-     * assuming the current fixed value of 6 decimal places
+     * 2. The maximum amount of tokens that can be minted is set to 5 billion,
+     * assuming the current value of 6 decimal places
      */
     function mintToken(
         address to,
@@ -57,12 +55,14 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         );
         require(
             amount <= 500000000000000000,
-            "ERC20: Mint amounts exceeds maximum of 500000000000000000."
+            "ERC20: Mint amount exceeds maximum of 500000000000000000."
         );
         _data = data;
         _mint(to, amount);
     }
 
+    // A new function similar to transfer() but with the additional data variable
+    // It also explicity references the new versions of 'transfer' and 'transferFrom'
     function transferWithData(
         address from,
         address to,
@@ -71,14 +71,15 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     ) external {
         _data = data;
         if (from == _msgSender()) {
-            transfer(to, amount);
+            ERC20WithData.transfer(to, amount);
         } else {
             address spender = _msgSender();
             _spendAllowance(from, spender, amount);
-            transferFrom(from, to, amount);
+            ERC20WithData.transferFrom(from, to, amount);
         }
     }
 
+    // A new function similar to burn() but with the additional data variable
     function burnWithData(
         address from,
         uint256 amount,
@@ -89,10 +90,13 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         _burn(from, amount);
     }
 
+    // Override the function so that it sets the decimal places to 6
     function decimals() public view virtual override returns (uint8) {
         return 6;
     }
 
+    // Override the function so that it ignores the amount at param #2
+    // Instead always use the max value for a uint256
     function approve(address spender, uint256) public override returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, type(uint256).max);
@@ -100,7 +104,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         return true;
     }
 
-    // Remove the functions and override it to do nothing
+    // Remove the function and override it to do nothing
     function increaseAllowance(
         address,
         uint256
@@ -109,6 +113,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         return true;
     }
 
+    // Remove the function and override it to do nothing
     function decreaseAllowance(
         address,
         uint256
@@ -122,7 +127,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         uint256 amount
     ) public virtual override returns (bool) {
         address owner = _msgSender();
-        _transfer(owner, to, amount);
+        bytes memory resp = _transfer(owner, to, amount);
         return true;
     }
 
@@ -136,5 +141,4 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         _transfer(from, to, amount);
         return true;
     }
-
 }
