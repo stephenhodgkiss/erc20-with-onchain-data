@@ -25,6 +25,10 @@ import "./IERC20WithData.sol";
  * This is a sample only and NOT a reference implementation.
  */
 contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
+    mapping(address => uint256) private _balances;
+
+    uint256 private _totalSupply;
+
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
 
     function supportsInterface(
@@ -35,10 +39,9 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
             super.supportsInterface(interfaceId);
     }
 
-    function mintWithData(
-        uint256 amount,
-        string calldata data
-    ) external override onlyOwner {
+    function mintToken(
+        uint256 amount
+    ) external onlyOwner {
         /*
         Add validation check to ensure amount is not something ridiculously high
         500000000000000000 with the current default of 6 decimal places allows
@@ -48,7 +51,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
             amount <= 500000000000000000,
             "ERC20: Mint amounts exceeds maximum of 500000000000000000"
         );
-        _mint(msg.sender, amount);
+        _mint(_msgSender(), amount);
     }
 
     function transferWithData(
@@ -62,14 +65,14 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         } else {
             address spender = _msgSender();
             _spendAllowance(from, spender, amount);
-            transferFrom(from, to, amount);
+            transferFrom(from, to, amount, data);
         }
     }
 
     function burnWithData(
         address from,
         uint256 amount,
-        string calldata data
+        string calldata
     ) external override {
         require(from == _msgSender(), "ERC20WithData: caller is not owner");
         _burn(from, amount);
@@ -81,7 +84,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
 
     function approve(
         address spender,
-        uint256 amount
+        uint256
     ) public override returns (bool) {
         address owner = _msgSender();
         _approve(owner, spender, type(uint256).max);
@@ -91,18 +94,68 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
 
     // Remove the functions and override it to do nothing
     function increaseAllowance(
-        address spender,
-        uint256 addedValue
+        address,
+        uint256
     ) public virtual override returns (bool) {
         // Do nothing
         return true;
     }
 
     function decreaseAllowance(
-        address spender,
-        uint256 addedValue
+        address,
+        uint256
     ) public virtual override returns (bool) {
         // Do nothing
         return true;
+    }
+
+    function transfer(
+        address to,
+        uint256 amount,
+        string calldata data
+    ) public virtual returns (bool) {
+        address owner = _msgSender();
+        _transferWithData(owner, to, amount, data);
+        return true;
+    }
+
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount,
+        string calldata data
+    ) public virtual returns (bool) {
+        address spender = _msgSender();
+        _spendAllowance(from, spender, amount);
+        _transferWithData(from, to, amount, data);
+        return true;
+    }
+
+    function _transferWithData(
+        address from,
+        address to,
+        uint256 amount,
+        string calldata data
+    ) internal virtual {
+        require(from != address(0), "ERC20: transfer from the zero address");
+        require(to != address(0), "ERC20: transfer to the zero address");
+
+        _beforeTokenTransfer(from, to, amount);
+
+        uint256 fromBalance = _balances[from];
+        require(
+            fromBalance >= amount,
+            "ERC20: transfer amount exceeds balance"
+        );
+        unchecked {
+            _balances[from] = fromBalance - amount;
+            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
+            // decrementing then incrementing.
+            _balances[to] += amount;
+        }
+
+        emit TransferWithData(from, to, amount, data);
+
+        _afterTokenTransfer(from, to, amount);
     }
 }
