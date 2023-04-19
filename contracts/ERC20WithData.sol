@@ -29,16 +29,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
 
     uint256 private _totalSupply;
 
-    address public contractOwner;
-
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {
-        contractOwner = msg.sender;
-    }
-
-    // Getter function for contractOwner variable
-    function getContractOwner() public view returns (address) {
-        return contractOwner;
-    }
+    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
 
     function supportsInterface(
         bytes4 interfaceId
@@ -61,7 +52,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
             "Cannot mint new tokens to the contract address."
         );
         require(
-            to != contractOwner,
+            to != owner(),
             "Cannot mint new tokens to the contract owner."
         );
         require(
