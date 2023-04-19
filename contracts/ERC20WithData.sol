@@ -25,9 +25,9 @@ import "./IERC20WithData.sol";
  * This is a sample only and NOT a reference implementation.
  */
 contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
-    mapping(address => uint256) private _balances;
 
     uint256 private _totalSupply;
+    string private _data;
 
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
 
@@ -46,19 +46,20 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
      * 3. The maximum amount of tokens that can be minted is set to 5 billion,
      * assuming the current fixed value of 6 decimal places
      */
-    function mintToken(address to, uint256 amount) external onlyOwner {
+    function mintToken(
+        address to,
+        uint256 amount,
+        string calldata data
+    ) external onlyOwner {
         require(
             to != address(this),
             "Cannot mint new tokens to the contract address."
         );
         require(
-            to != owner(),
-            "Cannot mint new tokens to the contract owner."
-        );
-        require(
             amount <= 500000000000000000,
             "ERC20: Mint amounts exceeds maximum of 500000000000000000."
         );
+        _data = data;
         _mint(to, amount);
     }
 
@@ -67,21 +68,23 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         address to,
         uint256 amount,
         string calldata data
-    ) external override {
+    ) external {
+        _data = data;
         if (from == _msgSender()) {
             transfer(to, amount);
         } else {
             address spender = _msgSender();
             _spendAllowance(from, spender, amount);
-            transferFrom(from, to, amount, data);
+            transferFrom(from, to, amount);
         }
     }
 
     function burnWithData(
         address from,
         uint256 amount,
-        string calldata
-    ) external override {
+        string calldata data
+    ) external {
+        _data = data;
         require(from == _msgSender(), "ERC20WithData: caller is not owner");
         _burn(from, amount);
     }
@@ -116,51 +119,22 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
 
     function transfer(
         address to,
-        uint256 amount,
-        string calldata data
-    ) public virtual returns (bool) {
+        uint256 amount
+    ) public virtual override returns (bool) {
         address owner = _msgSender();
-        _transferWithData(owner, to, amount, data);
+        _transfer(owner, to, amount);
         return true;
     }
 
     function transferFrom(
         address from,
         address to,
-        uint256 amount,
-        string calldata data
-    ) public virtual returns (bool) {
+        uint256 amount
+    ) public virtual override returns (bool) {
         address spender = _msgSender();
         _spendAllowance(from, spender, amount);
-        _transferWithData(from, to, amount, data);
+        _transfer(from, to, amount);
         return true;
     }
 
-    function _transferWithData(
-        address from,
-        address to,
-        uint256 amount,
-        string calldata data
-    ) internal virtual {
-        require(from != address(0), "ERC20: transfer from the zero address");
-        require(to != address(0), "ERC20: transfer to the zero address");
-
-        _beforeTokenTransfer(from, to, amount);
-
-        uint256 fromBalance = _balances[from];
-        require(
-            fromBalance >= amount,
-            "ERC20: transfer amount exceeds balance"
-        );
-        unchecked {
-            _balances[from] = fromBalance - amount;
-            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-            // decrementing then incrementing.
-            _balances[to] += amount;
-        }
-
-        emit TransferWithData(from, to, amount, data);
-
-        _afterTokenTransfer(from, to, amount);
-    }
 }

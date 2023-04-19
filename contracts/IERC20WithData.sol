@@ -13,11 +13,10 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
  */
 interface IERC20WithData is IERC165 {
 
-    event TransferWithData(address indexed from, address indexed to, uint256 value, string data);
-
     function mintToken(
         address to,
-        uint256 amount
+        uint256 amount,
+        string calldata data
     ) external;
 
     function transferWithData(
