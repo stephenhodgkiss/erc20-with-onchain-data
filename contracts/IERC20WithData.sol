@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma abicoder v2;
-
 pragma solidity ^0.8.0;
+pragma abicoder v2;
 
 import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
