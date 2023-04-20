@@ -2,14 +2,14 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-import "./ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./IERC20WithData.sol";
 
 /**
- * Example ERC20 token with mint, burn, and attached data support.
+ * Example ERC20 token with mint, burn, and attached onchainData support.
  *
  * This contract demonstrates a very simple ERC20 fungible token. Notes on functionality:
  *   - the contract owner (ie deployer) is the only party allowed to mint
@@ -19,7 +19,7 @@ import "./IERC20WithData.sol";
  *   - decimals hard-coded to 18 (so 1 token is expressed as 1000000000000000000)
  *
  * The inclusion of a "data" argument on each external method allows it to write
- * extra data to the chain alongside each token transaction, in order to correlate it with
+ * extra onchainData to the chain alongside each token transaction, in order to correlate it with
  * other on- and off-chain events.
  *
  * This is a sample only and NOT a reference implementation.
@@ -47,7 +47,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
     function mintToken(
         address to,
         uint256 amount,
-        string calldata data
+        string calldata onchainData
     ) external onlyOwner {
         require(
             to != address(this),
@@ -57,19 +57,19 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
             amount <= 500000000000000000,
             "ERC20: Mint amount exceeds maximum of 500000000000000000."
         );
-        _data = data;
+        _data = onchainData;
         _mint(to, amount);
     }
 
-    // A new function similar to transfer() but with the additional data variable
+    // A new function similar to transfer() but with the additional onchainData variable
     // It also explicity references the new versions of 'transfer' and 'transferFrom'
     function transferWithData(
         address from,
         address to,
         uint256 amount,
-        string calldata data
+        string calldata onchainData
     ) external {
-        _data = data;
+        _data = onchainData;
         if (from == _msgSender()) {
             ERC20WithData.transfer(to, amount);
         } else {
@@ -79,13 +79,13 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         }
     }
 
-    // A new function similar to burn() but with the additional data variable
+    // A new function similar to burn() but with the additional onchainData variable
     function burnWithData(
         address from,
         uint256 amount,
-        string calldata data
+        string calldata onchainData
     ) external {
-        _data = data;
+        _data = onchainData;
         require(from == _msgSender(), "ERC20WithData: caller is not owner");
         _burn(from, amount);
     }
@@ -127,7 +127,7 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         uint256 amount
     ) public virtual override returns (bool) {
         address owner = _msgSender();
-        bytes memory resp = _transfer(owner, to, amount);
+        _transfer(owner, to, amount);
         return true;
     }
 
@@ -140,5 +140,27 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
         return true;
+    }
+
+    /**
+     * @dev Hook that is called after any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when "from" and "to are both non-zero, amount of "from"s tokens
+     * has been transferred to "to".
+     * - when "from" is zero, "amount" tokens have been minted for "to".
+     * - when "to" is zero, "amount" of "from"s tokens have been burned.
+     * - "from" and "to" are never both zero.
+     *
+     * To learn more about hooks, head to https://docs.openzeppelin.com/contracts/4.x/extending-contracts
+     */
+    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        
+        super._afterTokenTransfer(from, to, amount); // Call parent hook
+
+        // create event passing in global variable _data
+        emit TransferWithData(from, to, amount, _data);
     }
 }

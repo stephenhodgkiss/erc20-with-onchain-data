@@ -219,24 +219,31 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
      * - `to` cannot be the zero address.
      * - `from` must have a balance of at least `amount`.
      */
-    function _transfer(address from, address to, uint256 amount) internal virtual {
+    function _transfer(address from, address to, uint256 amount) internal virtual returns(bool) {
         require(from != address(0), "ERC20: transfer from the zero address");
         require(to != address(0), "ERC20: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, amount);
 
+        bool resp = true;
+
         uint256 fromBalance = _balances[from];
-        require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
-        unchecked {
-            _balances[from] = fromBalance - amount;
-            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-            // decrementing then incrementing.
-            _balances[to] += amount;
+        if (fromBalance >= amount) {
+            resp = false;
+        } else {
+            unchecked {
+                _balances[from] = fromBalance - amount;
+                // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
+                // decrementing then incrementing.
+                _balances[to] += amount;
+            }
+
+            emit Transfer(from, to, amount);
+
+            _afterTokenTransfer(from, to, amount);
         }
 
-        emit Transfer(from, to, amount);
-
-        _afterTokenTransfer(from, to, amount);
+        return resp;
     }
 
     /** @dev Creates `amount` tokens and assigns them to `account`, increasing
