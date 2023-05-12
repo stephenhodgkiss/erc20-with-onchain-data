@@ -73,8 +73,8 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         if (from == _msgSender()) {
             ERC20WithData.transfer(to, amount);
         } else {
-            address spender = _msgSender();
-            _spendAllowance(from, spender, amount);
+            // address spender = _msgSender();
+            // _spendAllowance(from, spender, amount);
             ERC20WithData.transferFrom(from, to, amount);
         }
     }
@@ -136,8 +136,8 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         address to,
         uint256 amount
     ) public virtual override returns (bool) {
-        address spender = _msgSender();
-        _spendAllowance(from, spender, amount);
+        // address spender = _msgSender();
+        // _spendAllowance(from, spender, amount);
         _transfer(from, to, amount);
         return true;
     }
