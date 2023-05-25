@@ -13,14 +13,6 @@ import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
  */
 interface IERC20WithData is IERC165 {
 
-    /**
-     * @dev Emitted when `value` tokens are moved from one account (`from`) to
-     * another (`to`).
-     *
-     * Note that `value` may be zero.
-     */
-    event TransferWithData(address indexed from, address indexed to, uint256 value, string onchainData);
-
     function mintToken(
         address to,
         uint256 amount,
