@@ -142,25 +142,4 @@ contract ERC20WithData is Context, Ownable, ERC165, ERC20, IERC20WithData {
         return true;
     }
 
-    /**
-     * @dev Hook that is called after any transfer of tokens. This includes
-     * minting and burning.
-     *
-     * Calling conditions:
-     *
-     * - when "from" and "to are both non-zero, amount of "from"s tokens
-     * has been transferred to "to".
-     * - when "from" is zero, "amount" tokens have been minted for "to".
-     * - when "to" is zero, "amount" of "from"s tokens have been burned.
-     * - "from" and "to" are never both zero.
-     *
-     * To learn more about hooks, head to https://docs.openzeppelin.com/contracts/4.x/extending-contracts
-     */
-    function _afterTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        
-        super._afterTokenTransfer(from, to, amount); // Call parent hook
-
-        // create event passing in global variable _data
-        emit TransferWithData(from, to, amount, _data);
-    }
 }
